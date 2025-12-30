@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -15,9 +16,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@800;900&display=swap" rel="stylesheet" />
 
     <!-- Vite -->
-    @vite(['resources/css/app.css', 'resources/js/app.jsx'])
+    @viteReactRefresh @vite(['resources/css/app.css', 'resources/js/app.jsx'])
 </head>
+
 <body class="font-sans antialiased">
     <div id="app"></div>
 </body>
+
 </html>
