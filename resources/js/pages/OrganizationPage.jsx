@@ -73,7 +73,7 @@ const OrganizationPage = () => {
                                 transition={{ delay: 0.5 }}
                                 className="text-lg text-gray-200/90 font-light"
                             >
-                                Periode Tahun 2025
+                                Periode Tahun 2026
                             </motion.p>
                         </motion.div>
                     </motion.header>

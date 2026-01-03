@@ -1,13 +1,14 @@
 <?php
 
 use App\Http\Controllers\Api\CategoryController;
-use App\Http\Controllers\Api\ArticleController; 
+use App\Http\Controllers\Api\ArticleController;
 use App\Http\Controllers\Api\EventController;
 use App\Http\Controllers\Api\NewsController;
 use App\Http\Controllers\Api\NewsCategoryController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\Api\OrganizationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,6 +20,8 @@ use App\Http\Controllers\ContactController;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+// Endpoint ini akan dipanggil frontend: GET /api/structure
+Route::get('/structure', [OrganizationController::class, 'index']);
 
 // Articles
 Route::prefix('articles')->group(function () {

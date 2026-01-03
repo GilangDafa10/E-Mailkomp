@@ -1,104 +1,66 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Navbar from "../../components/Layouts/Navbar";
 import Footer from "../../components/Layouts/Footer";
+import DivisionSlider from "../../components/Organization/DivisionSlider";
 import { motion } from "framer-motion";
-import { useKeenSlider } from "keen-slider/react";
-import { useMediaQuery } from "react-responsive";
-import "keen-slider/keen-slider.min.css";
+import axios from "axios";
 
-const ketua = [
-    {
-        name: "Arum Maylan Palupi",
-        position: "Kepala Bidang",
-        imageUrl: "/assets/organization/anggota/sekbend/maylan.png",
-        isLeader: true,
-    },
-];
+const Sekbend = () => {
+    // State untuk menampung data departemen Sekbend
+    const [SekbendData, setSekbendData] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-const sekretaris = [
-    {
-        name: "Mungalimah Thoyyibah",
-        position: "Kepala Divisi",
-        imageUrl: "/assets/organization/anggota/sekbend/alimah.png",
-        isLeader: true,
-    },
-    {
-        name: "Rosita Sabrina Filsah ",
-        position: "Staff Divisi",
-        imageUrl: "/assets/organization/anggota/sekbend/rosita.png",
-        isLeader: false,
-    },
-    {
-        name: "Muhammad Abimanyu Riza",
-        position: "Staff Divisi",
-        imageUrl: "/assets/organization/anggota/sekbend/abim.png",
-        isLeader: false,
-    },
-    {
-        name: "Aldifa Zahrotul Aufar",
-        position: "Staff Divisi",
-        imageUrl: "/assets/organization/anggota/sekbend/difa.png",
-        isLeader: false,
-    },
-];
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const cachedData = sessionStorage.getItem("SekbendData");
+                let departments;
 
-const bendahara = [
-    {
-        name: "Regita Aulia Fridawati",
-        position: "Kepala Divisi",
-        imageUrl: "/assets/organization/anggota/sekbend/regita.png",
-        isLeader: true,
-    },
-    {
-        name: "Raphael Rhinovaldi Wibisana",
-        position: "Staff Divisi",
-        imageUrl: "/assets/organization/anggota/sekbend/raphael.png",
-        isLeader: false,
-    },
-    {
-        name: "Lailla Nurulita Ramadhani",
-        position: "Staff Divisi",
-        imageUrl: "/assets/organization/anggota/sekbend/lailla.png",
-        isLeader: false,
-    },
-];
+                if (cachedData) {
+                    departments = JSON.parse(cachedData);
+                } else {
+                    const response = await axios.get("/api/structure");
+                    departments = response.data.data.departments;
+                    sessionStorage.setItem(
+                        "SekbendData",
+                        JSON.stringify(departments)
+                    );
+                }
+                const targetDept = departments.find(
+                    (d) =>
+                        d.slug === "sekretaris-bendahara" ||
+                        d.name === "Sekretaris & Bendahara"
+                );
+                setSekbendData(targetDept);
+            } catch (err) {
+                setError(err.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchData();
+    }, []);
 
-const SekBend = () => {
-    const [currentSlide, setCurrentSlide] = useState(0);
-    const [loaded, setLoaded] = useState(false);
-    const [sliderRef, instanceRef] = useKeenSlider({
-        loop: true,
-        mode: "free-snap",
-        slides: {
-            perView: 5,
-            spacing: 0,
-        },
-        breakpoints: {
-            "(max-width: 1280px)": {
-                slides: { perView: 5, spacing: 0 },
-            },
-            "(max-width: 1024px)": {
-                slides: { perView: 3, spacing: 0 },
-            },
-            "(max-width: 768px)": {
-                slides: { perView: 3, spacing: 0 },
-            },
-        },
-        created() {
-            setLoaded(true);
-        },
-        slideChanged(slider) {
-            setCurrentSlide(slider.track.details.rel);
-        },
-    });
+    if (!SekbendData) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-primary-dark text-white">
+                {error ? (
+                    `Error: ${error}`
+                ) : (
+                    <span>Memuat Bidang Kemahasiswaan......</span>
+                )}
+            </div>
+        );
+    }
 
-    const isLargeScreen = useMediaQuery({ query: "(min-width: 1024px)" });
+    const { head_of_bidang, divisions = [] } = SekbendData;
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-primary-dark via-primary-purple to-primary-dark overflow-x-hidden">
             <Navbar />
             <main className="relative">
-                {/* Background Effects */}
+                {/* Background Effects (Sama seperti kode asli) */}
                 <div className="fixed inset-0 pointer-events-none">
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] h-[90vw] md:w-[1200px] md:h-[1200px] bg-primary-blue opacity-20 blur-3xl animate-pulse-slow"></div>
                     <div className="absolute -top-1/3 -left-1/4 w-[50vw] h-[45vw] md:w-[700px] md:h-[600px] bg-primary-orange opacity-8 blur-3xl animate-pulse-slow delay-700 rotate-[15deg]"></div>
@@ -123,235 +85,58 @@ const SekBend = () => {
                         >
                             <div className="absolute -inset-x-8 -inset-y-4 bg-primary-blue/20 blur-3xl -z-10 opacity-50 rounded-full"></div>
                             <h1 className="text-3xl md:text-4xl lg:text-7xl font-bold tracking-tight mb-6">
-                                <span className="inline-block bg-gradient-to-r from-white via-primary-orange/80 to-white bg-clip-text text-transparent animate-gradient-x">
-                                    Sekretaris dan Bendahara
+                                <span className="inline-block bg-gradient-to-r from-white via-primary-orange/80 to-white bg-clip-text text-transparent animate-gradient-x p-1">
+                                    {SekbendData.name}
                                 </span>
                             </h1>
                         </motion.div>
                     </motion.header>
 
-                    {/* Ketua Bidang */}
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.6 }}
-                        className="mb-12 text-center"
-                    >
-                        <div className="group relative w-[130px] sm:w-[180px] md:w-[200px] mx-auto ">
-                            <div className="relative transform skew-x-[-12deg] overflow-hidden rounded-lg bg-gradient-to-br from-primary-dark/90 to-primary-purple/90 backdrop-blur-xl border border-white/10 hover:border-white/20 transition-all duration-300 shadow-lg hover:shadow-primary-orange/20">
-                                <div className="aspect-[9/16] relative overflow-hidden">
-                                    <img
-                                        src={ketua[0].imageUrl}
-                                        alt={ketua[0].name}
-                                        className="absolute inset-0 w-full h-full object-cover transform skew-x-[12deg] scale-140 group-hover:scale-160 transition-transform duration-500"
-                                    />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-                                </div>
-                                <div className="absolute bottom-0 inset-x-0 p-2 sm:p-3 text-center bg-gradient-to-t from-black/90 to-transparent">
-                                    <h3 className="text-xs sm:text-sm font-bold text-white">
-                                        {ketua[0].name}
-                                    </h3>
-                                    <span className="mt-1 px-2 sm:px-3 py-1 bg-primary-blue/30 rounded-full text-[10px] sm:text-xs text-white border border-white/10">
-                                        {ketua[0].position}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </motion.div>
-
-                    {/* Bidang Sections */}
-                    {[
-                        {
-                            title: "Sekretaris",
-                            members: sekretaris,
-                        },
-                        {
-                            title: "Bendahara",
-                            members: bendahara,
-                        },
-                    ].map((section, sectionIndex) => {
-                        const [currentSlide, setCurrentSlide] = useState(0); // State untuk slide saat ini
-                        const [loaded, setLoaded] = useState(false);
-                        const [sliderRef, instanceRef] = useKeenSlider({
-                            loop: true,
-                            mode: "free-snap",
-                            slides: {
-                                perView: 5,
-                                spacing: 0,
-                            },
-                            breakpoints: {
-                                "(max-width: 1280px)": {
-                                    slides: { perView: 5, spacing: 0 },
-                                },
-                                "(max-width: 1024px)": {
-                                    slides: { perView: 3, spacing: 0 },
-                                },
-                                "(max-width: 768px)": {
-                                    slides: { perView: 3, spacing: 0 },
-                                },
-                            },
-                            created() {
-                                setLoaded(true);
-                            },
-                            slideChanged(slider) {
-                                setCurrentSlide(slider.track.details.rel); // Update current slide
-                            },
-                        });
-
-                        return (
-                            <div key={sectionIndex} className="mb-10">
-                                <motion.div
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.3, duration: 0.5 }}
-                                    className="relative text-center mb-10"
-                                >
-                                    <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3">
-                                        <span className="bg-gradient-to-r from-white/90 via-primary-orange/70 to-white/90 bg-clip-text text-transparent">
-                                            {section.title}
+                    {/* Ketua Bidang (Head of Heading) */}
+                    {head_of_bidang && (
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.6 }}
+                            className="mb-12 text-center"
+                        >
+                            <div className="group relative w-[130px] sm:w-[180px] md:w-[200px] mx-auto ">
+                                <div className="relative transform skew-x-[-12deg] overflow-hidden rounded-lg bg-gradient-to-br from-primary-dark/90 to-primary-purple/90 backdrop-blur-xl border border-white/10 hover:border-white/20 transition-all duration-300 shadow-lg hover:shadow-primary-orange/20">
+                                    <div className="aspect-[9/16] relative overflow-hidden">
+                                        <img
+                                            src={
+                                                head_of_bidang.image_url ||
+                                                "/assets/default-avatar.png"
+                                            }
+                                            alt={head_of_bidang.name}
+                                            loading="lazy"
+                                            decoding="async" // <--- Agar rendering teks tidak terblokir decoding gambar
+                                            className="absolute inset-0 w-full h-full object-cover transform skew-x-[12deg] scale-140 group-hover:scale-160 transition-transform duration-500"
+                                        />
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                                    </div>
+                                    <div className="absolute bottom-0 inset-x-0 p-2 sm:p-3 text-center bg-gradient-to-t from-black/90 to-transparent">
+                                        <h3 className="text-xs sm:text-sm font-bold text-white">
+                                            {head_of_bidang.name}
+                                        </h3>
+                                        <span className="mt-1 px-2 sm:px-3 py-1 bg-primary-blue/30 rounded-full text-[10px] sm:text-xs text-white border border-white/10">
+                                            {head_of_bidang.position}
                                         </span>
-                                    </h2>
-                                </motion.div>
-
-                                {/* Slider Container */}
-                                <div className="px-4 md:px-8 max-w-7xl mx-auto">
-                                    {!isLargeScreen ||
-                                    section.members.length > 5 ? (
-                                        <div
-                                            ref={sliderRef}
-                                            className="keen-slider"
-                                        >
-                                            {section.members.map(
-                                                (member, index) => (
-                                                    <motion.div
-                                                        key={`${sectionIndex}-${member.name}-${index}`}
-                                                        className="keen-slider__slide"
-                                                        initial={{
-                                                            opacity: 0,
-                                                            scale: 0.9,
-                                                        }}
-                                                        animate={{
-                                                            opacity: 1,
-                                                            scale: 1,
-                                                        }}
-                                                        transition={{
-                                                            delay: index * 0.1,
-                                                            duration: 0.6,
-                                                        }}
-                                                    >
-                                                        <div className="group relative w-[80px] sm:w-[110px] md:w-[130px] lg:w-[170px] text-center mx-auto">
-                                                            <div className="relative transform skew-x-[-12deg] overflow-hidden rounded-lg bg-gradient-to-br from-primary-dark/90 to-primary-purple/90 backdrop-blur-xl border border-white/10 hover:border-white/20 transition-all duration-300 shadow-lg hover:shadow-primary-orange/20">
-                                                                <div className="aspect-[9/16] relative overflow-hidden">
-                                                                    <img
-                                                                        src={
-                                                                            member.imageUrl
-                                                                        }
-                                                                        alt={
-                                                                            member.name
-                                                                        }
-                                                                        className="absolute inset-0 w-full h-full object-cover transform skew-x-[12deg] scale-140 group-hover:scale-160 transition-transform duration-500"
-                                                                    />
-                                                                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-                                                                </div>
-                                                                <div className="absolute bottom-0 inset-x-0 p-2 sm:p-3 text-center bg-gradient-to-t from-black/90 to-transparent">
-                                                                    <h3 className="text-[10px] sm:text-xs md:text-sm font-bold text-white">
-                                                                        {
-                                                                            member.name
-                                                                        }
-                                                                    </h3>
-                                                                    <span className="mt-1 px-1 sm:px-2 py-0.5 bg-primary-orange/30 rounded-full text-[8px] sm:text-[10px] md:text-xs text-white border border-white/10">
-                                                                        {
-                                                                            member.position
-                                                                        }
-                                                                    </span>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </motion.div>
-                                                )
-                                            )}
-                                        </div>
-                                    ) : (
-                                        <div
-                                            className={`flex justify-around ${
-                                                section.members.length < 5
-                                                    ? "flex-wrap"
-                                                    : ""
-                                            }`}
-                                        >
-                                            {section.members.map(
-                                                (member, index) => (
-                                                    <div
-                                                        key={`${sectionIndex}-${member.name}-${index}`}
-                                                        className="text-center mx-2"
-                                                    >
-                                                        <div className="group relative w-[80px] sm:w-[110px] md:w-[130px] lg:w-[170px]">
-                                                            <div className="relative transform skew-x-[-12deg] overflow-hidden rounded-lg bg-gradient-to-br from-primary-dark/90 to-primary-purple/90 backdrop-blur-xl border border-white/10 hover:border-white/20 transition-all duration-300 shadow-lg hover:shadow-primary-orange/20">
-                                                                <div className="aspect-[9/16] relative overflow-hidden">
-                                                                    <img
-                                                                        src={
-                                                                            member.imageUrl
-                                                                        }
-                                                                        alt={
-                                                                            member.name
-                                                                        }
-                                                                        className="absolute inset-0 w-full h-full object-cover transform skew-x-[12deg] scale-140 group-hover:scale-160 transition-transform duration-500"
-                                                                    />
-                                                                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-                                                                </div>
-                                                                <div className="absolute bottom-0 inset-x-0 p-2 sm:p-3 text-center bg-gradient-to-t from-black/90 to-transparent">
-                                                                    <h3 className="text-[10px] sm:text-xs md:text-sm font-bold text-white">
-                                                                        {
-                                                                            member.name
-                                                                        }
-                                                                    </h3>
-                                                                    <span className="mt-1 px-1 sm:px-2 py-0.5 bg-primary-orange/30 rounded-full text-[8px] sm:text-[10px] md:text-xs text-white border border-white/10">
-                                                                        {
-                                                                            member.position
-                                                                        }
-                                                                    </span>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                )
-                                            )}
-                                        </div>
-                                    )}
-
-                                    {/* Carousel Indicators */}
-                                    {loaded && instanceRef.current && (
-                                        <div className="flex justify-center gap-2 mt-4">
-                                            {[
-                                                ...Array(
-                                                    Math.ceil(
-                                                        (section.members
-                                                            .length -
-                                                            1) /
-                                                            3
-                                                    )
-                                                ),
-                                            ].map((_, idx) => (
-                                                <button
-                                                    key={idx}
-                                                    onClick={() => {
-                                                        instanceRef.current?.moveToIdx(
-                                                            idx * 3
-                                                        );
-                                                    }}
-                                                    className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                                                        currentSlide === idx
-                                                            ? "bg-primary-orange/90 w-4"
-                                                            : "bg-white/30 hover:bg-white/50"
-                                                    }`}
-                                                />
-                                            ))}
-                                        </div>
-                                    )}
+                                    </div>
                                 </div>
                             </div>
-                        );
-                    })}
+                        </motion.div>
+                    )}
+
+                    {/* Divisi Sections (Looping Dinamis dari JSON) */}
+                    {divisions &&
+                        divisions.map((division) => (
+                            <DivisionSlider
+                                key={division.id}
+                                title={division.name}
+                                members={division.members}
+                            />
+                        ))}
                 </div>
             </main>
             <Footer />
@@ -359,4 +144,4 @@ const SekBend = () => {
     );
 };
 
-export default SekBend;
+export default Sekbend;

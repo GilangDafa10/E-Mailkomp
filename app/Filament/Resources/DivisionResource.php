@@ -1,0 +1,89 @@
+<?php
+
+namespace App\Filament\Resources;
+
+use App\Filament\Resources\DivisionResource\Pages;
+use App\Filament\Resources\DivisionResource\RelationManagers;
+use App\Models\Division;
+use Filament\Forms;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Form;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
+
+class DivisionResource extends Resource
+{
+    protected static ?string $model = Division::class;
+
+    protected static ?string $navigationIcon = 'heroicon-o-tag';
+    protected static ?string $navigationGroup = 'EM Structured';
+    protected static ?int $navigationSort = 2;
+
+    public static function form(Form $form): Form
+    {
+        return $form
+            ->schema([
+                Select::make('bidang_id')
+                    ->relationship('bidang', 'bidang_name')
+                    ->required()
+                    ->label('Nama Bidang')
+                    ->placeholder('Pilih Bidang'),
+                TextInput::make('divisi_name')
+                    ->required()
+                    ->label('Nama Divisi')
+                    ->maxLength(255),
+                TextInput::make('sort_order')
+                    ->label('Urutan Tampil')
+                    ->numeric()
+                    ->default(0),
+            ]);
+    }
+
+    public static function table(Table $table): Table
+    {
+        return $table
+            ->columns([
+                TextColumn::make('divisi_name')
+                    ->label('Nama Divisi')
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('bidang.bidang_name')
+                    ->label('Bidang'),
+                TextColumn::make('sort_order')
+                    ->label('Urutan Tampil'),
+            ])
+            ->filters([
+                //
+            ])
+            ->actions([
+                Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                ]),
+            ]);
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            //
+        ];
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => Pages\ListDivisions::route('/'),
+            'create' => Pages\CreateDivision::route('/create'),
+            'edit' => Pages\EditDivision::route('/{record}/edit'),
+        ];
+    }
+}

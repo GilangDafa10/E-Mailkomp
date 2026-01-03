@@ -11,7 +11,7 @@ const initialFields = [
     },
     {
         id: 2,
-        name: "Pengembangan Organisasi",
+        name: "Pengembangan Organisasi & Kewirausahaan",
         logo: "/assets/organization/bidang/LogoPO.png",
         link: "/bidang/pengembangan-organisasi",
     },
@@ -65,18 +65,17 @@ const FieldSection = () => {
     return (
         <div className="w-full py-10 mt-6">
             <div className="container mx-auto px-6 md:px-12">
-                <motion.h2
+                <motion.div
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2, duration: 0.6 }}
-                    className="text-center text-3xl md:text-4xl font-bold text-primary-orange mb-10"
                 >
-                    <h2 className="text-2xl md:text-3xl font-medium mb-3">
+                    <h2 className="text-center text-3xl md:text-4xl font-bold text-primary-orange mb-10">
                         <span className="bg-gradient-to-r from-white/90 via-primary-orange/70 to-white/90 bg-clip-text text-transparent">
                             Bidang dalam Organisasi
                         </span>
                     </h2>
-                </motion.h2>
+                </motion.div>
 
                 {isDesktop ? (
                     <Reorder.Group
